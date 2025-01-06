@@ -4,227 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>User Management and Chat</title>
+    <title>Profile Page</title>
     
-    <!-- Bootstrap CSS via CDN -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <style>
-        /* Page Styles */
         body {
             background-color: #f8f9fa;
             font-family: Arial, sans-serif;
         }
-
         .container {
-            margin-top: 30px;
+            margin-top: 50px;
             max-width: 600px;
         }
-
-        .output {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #f1f1f1;
-            white-space: pre-wrap;
-            font-family: monospace;
-        }
-
-        #chat-room {
-            display: none;
-        }
-
-        .typing-indicator {
-            font-style: italic;
-            color: #6c757d;
-            margin-bottom: 10px;
+        .card {
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="text-center mb-4">User Management and Chat</h2>
-
-        <!-- User Form -->
-        <div id="user-management">
-            <form>
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" class="form-control" placeholder="Enter your name">
-                </div>
-                <div class="form-group">
-                    <label for="address">Address</label>
-                    <input type="text" id="address" class="form-control" placeholder="Enter your address">
-                </div>
-                <div class="form-group">
-                    <label for="mobileNumber">Mobile Number</label>
-                    <input type="text" id="mobileNumber" class="form-control" placeholder="Enter your mobile number">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" class="form-control" placeholder="Enter your email">
-                </div>
-                <button type="button" class="btn btn-primary" onclick="registerUser()">Register</button>
-                <button type="button" class="btn btn-warning" onclick="updateUser()">Update (Patch)</button>
-                <button type="button" class="btn btn-success" onclick="getUser()">Get User</button>
-                <button type="button" class="btn btn-danger" onclick="checkUserForChat()">Enter Chat</button>
-            </form>
-
-            <div id="output" class="output"></div>
-        </div>
-
-        <!-- Chat Room -->
-        <div id="chat-room">
-            <div class="card mt-4">
-                <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">Welcome to the Chat Room</h4>
-                </div>
-                <div class="card-body">
-                    <p id="typing-indicator" class="typing-indicator"></p>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <input type="text" id="message" class="form-control" placeholder="Enter your message">
-                    </div>
-                    <button type="button" class="btn btn-dark" id="send-btn">Send</button>
-                    <button type="button" class="btn btn-danger" id="logout-btn" onclick="logoutChat()">Logout</button>
-                    <div class="mt-3">
-                        <table id="message-container-table" class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Messages</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4>Welcome to Your Profile</h4>
+            </div>
+            <div class="card-body">
+                <p>Here are your options:</p>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a href="update-profile.html" class="btn btn-link">Update Profile Details</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="chat-room.html" class="btn btn-link">Click to Chat</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
-
-    <script>
-        const registerApi = "http://localhost:8080/user/registerUser";
-        const patchApi = "http://localhost:8080/user/";
-        const getUserApi = "http://localhost:8080/user/getUserById?userId=";
-        let stompClient = null;
-        let typingTimeout;
-        let username = null;
-
-        // User registration logic
-        function registerUser() {
-            const user = getUserInput();
-            fetch(registerApi, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(user),
-            })
-            .then(response => response.json())
-            .then(data => displayOutput(data))
-            .catch(err => displayOutput({ error: "Error registering user", details: err }));
-        }
-
-        function updateUser() {
-            const userId = prompt("Enter the User ID to update:");
-            if (!userId) return alert("User ID is required!");
-            const user = getUserInput();
-            fetch(`${patchApi}${userId}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(user),
-            })
-            .then(response => response.json())
-            .then(data => displayOutput(data))
-            .catch(err => displayOutput({ error: "Error updating user", details: err }));
-        }
-
-        function getUser() {
-            const userId = prompt("Enter the User ID to fetch:");
-            if (!userId) return alert("User ID is required!");
-            fetch(`${getUserApi}${userId}`)
-            .then(response => response.json())
-            .then(data => displayOutput(data))
-            .catch(err => displayOutput({ error: "Error fetching user", details: err }));
-        }
-
-        function checkUserForChat() {
-            const userId = prompt("Enter your User ID to join the chat:");
-            if (!userId) return alert("User ID is required!");
-            fetch(`${getUserApi}${userId}`)
-            .then(response => {
-                if (!response.ok) throw new Error("User not found");
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.name) {
-                    enterChat(data.name);
-                } else {
-                    alert("User not found or invalid data!");
-                }
-            })
-            .catch(err => displayOutput({ error: "Cannot join chat", details: err.message }));
-        }
-
-        function enterChat(userName) {
-            username = userName;
-            document.getElementById("user-management").style.display = "none";
-            document.getElementById("chat-room").style.display = "block";
-            connectWebSocket();
-        }
-
-        function logoutChat() {
-            if (stompClient) stompClient.disconnect();
-            username = null;
-            document.getElementById("chat-room").style.display = "none";
-            document.getElementById("user-management").style.display = "block";
-        }
-
-        function getUserInput() {
-            return {
-                name: document.getElementById("name").value,
-                address: document.getElementById("address").value,
-                mobileNumber: document.getElementById("mobileNumber").value,
-                email: document.getElementById("email").value,
-            };
-        }
-
-        function displayOutput(data) {
-            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
-        }
-
-        function connectWebSocket() {
-            const socket = new SockJS("/chat");
-            stompClient = Stomp.over(socket);
-
-            stompClient.connect({}, () => {
-                stompClient.subscribe("/topic/return-to", (message) => {
-                    addMessage(JSON.parse(message.body));
-                });
-
-                stompClient.subscribe("/topic/typing", (typingMessage) => {
-                    document.getElementById("typing-indicator").textContent = typingMessage.body;
-                    setTimeout(() => {
-                        document.getElementById("typing-indicator").textContent = "";
-                    }, 1000);
-                });
-            });
-
-            document.getElementById("message").addEventListener("input", () => {
-                clearTimeout(typingTimeout);
-                stompClient.send("/app/typing", {}, username + " is typing...");
-                typingTimeout = setTimeout(() => stompClient.send("/app/typing", {}, ""), 1000);
-            });
-        }
-
-        function addMessage(message) {
-            const tableBody = document.querySelector("#message-container-table tbody");
-            const row = tableBody.insertRow();
-            const cell = row.insertCell(0);
-            cell.textContent = `${message.sender}: ${message.content}`;
-        }
-    </script>
 </body>
 </html>
