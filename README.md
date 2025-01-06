@@ -11,99 +11,143 @@
 
     <style>
         body {
-            background-color: #e9ecef;
+            background-color: #f8f9fa;
             font-family: Arial, sans-serif;
         }
 
+        /* Header Section */
         .profile-header {
-            background: linear-gradient(135deg, #007bff, #6610f2);
+            background: #343a40;
             color: white;
-            padding: 30px 20px;
-            text-align: center;
+            padding: 20px;
+            display: flex;
+            align-items: center;
             border-radius: 10px 10px 0 0;
+        }
+
+        .profile-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 20px;
         }
 
         .profile-header h2 {
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 1.8rem;
         }
 
         .profile-header p {
             margin: 5px 0 0;
             font-size: 1rem;
+            color: #d1d1d1;
         }
 
-        .profile-options {
-            background: white;
-            border: 1px solid #ddd;
-            padding: 20px;
+        /* Navigation Bar */
+        .nav-bar {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-radius: 0 0 10px 10px;
         }
 
-        .profile-options .btn {
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-            font-size: 1.1rem;
+        .nav-bar a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
             font-weight: bold;
-            border-radius: 5px;
         }
 
-        .btn-update {
-            background-color: #007bff;
-            color: white;
+        .nav-bar a:hover {
+            text-decoration: underline;
         }
 
-        .btn-update:hover {
-            background-color: #0056b3;
+        /* Main Content */
+        .profile-content {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-chat {
-            background-color: #28a745;
-            color: white;
+        .fun-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .btn-chat:hover {
-            background-color: #1e7e34;
+        .fun-section div {
+            flex: 1;
+            text-align: center;
+            margin: 0 10px;
         }
 
-        .btn-logout {
-            background-color: #dc3545;
-            color: white;
+        .fun-section div img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 10px;
         }
 
-        .btn-logout:hover {
-            background-color: #c82333;
+        .fun-section div p {
+            font-weight: bold;
+            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
     <div class="container mt-5">
+        <!-- Header Section -->
         <div class="profile-header">
-            <h2>Welcome, [User's Name]</h2>
-            <p>Manage your profile or join the chat!</p>
+            <img src="https://via.placeholder.com/80" alt="User Profile">
+            <div>
+                <h2>Welcome, [User's Name]</h2>
+                <p>Manage your profile or connect with others!</p>
+            </div>
         </div>
 
-        <div class="profile-options">
-            <button onclick="goToUpdateProfile()" class="btn btn-update">Update Profile Details</button>
-            <button onclick="goToChatRoom()" class="btn btn-chat">Click to Chat</button>
-            <button onclick="logout()" class="btn btn-logout">Logout</button>
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <div>
+                <a href="update-profile.html">Update Profile</a>
+                <a href="chat-room.html">Chat Room</a>
+            </div>
+            <a href="index.html" onclick="logout()">Logout</a>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="profile-content">
+            <h4>Profile Overview</h4>
+            <p>This section can display user-specific data like recent activity, status updates, or other details. You can customize it based on your application's functionality.</p>
+        </div>
+
+        <!-- Fun Section -->
+        <div class="fun-section">
+            <div>
+                <img src="https://via.placeholder.com/100" alt="Feature Icon">
+                <p>Achievements</p>
+            </div>
+            <div>
+                <img src="https://via.placeholder.com/100" alt="Feature Icon">
+                <p>Friends</p>
+            </div>
+            <div>
+                <img src="https://via.placeholder.com/100" alt="Feature Icon">
+                <p>Activity</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // Placeholder: Replace with actual navigation links or logic
-        function goToUpdateProfile() {
-            window.location.href = "update-profile.html"; // Update Profile Page
-        }
-
-        function goToChatRoom() {
-            window.location.href = "chat-room.html"; // Chat Room Page
-        }
-
+        // Placeholder logout function
         function logout() {
             alert("You have been logged out!");
-            window.location.href = "index.html"; // Redirect to Home Page
         }
     </script>
 </body>
