@@ -61,11 +61,10 @@
     </div>
 
     <script>
-        const getUserApi = "http://localhost:8080/user/getUserById?userId="; // Update this to match your API endpoint
+        const getUserApi = "http://localhost:8080/user/getUserById?userId="; // API endpoint
 
         // Fetch user details and display the name
         function fetchUserName() {
-            // Assume the user ID is stored in localStorage after registration
             const userId = localStorage.getItem("userId");
             if (!userId) {
                 document.getElementById("user-name").textContent = "Guest";
@@ -86,10 +85,10 @@
                 });
         }
 
-        // Logout functionality (optional)
+        // Logout functionality
         function logout() {
             localStorage.removeItem("userId"); // Clear user data
-            window.location.href = "register.html"; // Redirect to the register page
+            window.location.href = "register.html"; // Redirect to the registration page
         }
 
         // Fetch the user's name on page load
