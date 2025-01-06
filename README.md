@@ -3,158 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Room</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>User Management and Chat</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Link to Bootstrap for styling -->
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        /* Custom Styles */
+        /* Body styles */
         body {
-            background-color: #343a40;
-            color: white;
+            background-color: #f8f9fa; /* Light background color */
+            font-family: Arial, sans-serif; /* Default font */
         }
-        .typing-indicator {
-            font-style: italic;
-            color: #ffcc00;
+
+        /* Centering and spacing container */
+        .container {
+            margin-top: 30px;
+            max-width: 600px;
         }
-        .card {
-            background-color: #495057;
+
+        /* Styling for the output box */
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f1f1f1;
+            white-space: pre-wrap;
+            font-family: monospace; /* For JSON output readability */
+        }
+
+        /* Chat room styles */
+        #chat-room {
+            display: none; /* Initially hidden */
+        }
+
+        /* Form input fields */
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        /* Custom buttons */
+        .btn {
+            margin-right: 10px;
         }
     </style>
 </head>
 <body>
+<div class="container">
+    <!-- Header -->
+    <h2 class="text-center mb-4">User Management and Chat</h2>
 
-<!-- Login Section -->
-<div id="name-form" class="bg-primary d-flex align-items-center vh-100">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 offset-md-4">
-                <div class="input-group">
-                    <input type="text" placeholder="Enter your name" id="name-value" autofocus class="form-control">
-                    <button class="btn btn-dark" id="login">Enter</button>
+    <!-- User Management Section -->
+    <div id="user-management">
+        <form id="userForm">
+            <!-- Name Input -->
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" class="form-control" placeholder="Enter your name">
+            </div>
+
+            <!-- Address Input -->
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" class="form-control" placeholder="Enter your address">
+            </div>
+
+            <!-- Mobile Number Input -->
+            <div class="form-group">
+                <label for="mobileNumber">Mobile Number</label>
+                <input type="text" id="mobileNumber" class="form-control" placeholder="Enter your mobile number">
+            </div>
+
+            <!-- Email Input -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control" placeholder="Enter your email">
+            </div>
+
+            <!-- Buttons -->
+            <button type="button" class="btn btn-primary" onclick="registerUser()">Register</button>
+            <button type="button" class="btn btn-warning" onclick="updateUser()">Update (Patch)</button>
+            <button type="button" class="btn btn-success" onclick="getUser()">Get User</button>
+            <button type="button" class="btn btn-danger" onclick="checkUserForChat()">Enter Chat</button>
+        </form>
+
+        <!-- Output Section -->
+        <div id="output" class="output"></div>
+    </div>
+
+    <!-- Chat Room Section -->
+    <div id="chat-room">
+        <div class="card mt-4">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">Welcome to the Chat Room</h4>
+            </div>
+            <div class="card-body">
+                <!-- Message Input -->
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <input type="text" id="message" class="form-control" placeholder="Enter your message">
+                </div>
+
+                <!-- Chat Buttons -->
+                <button type="button" class="btn btn-dark" id="send-btn">Send</button>
+                <button type="button" class="btn btn-danger" id="logout-btn" onclick="logoutChat()">Logout</button>
+
+                <!-- Messages Display -->
+                <div class="mt-3">
+                    <table id="message-container-table" class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Messages</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Chat Room Section -->
-<div id="chat-room" class="d-none">
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 id="name-title"></h3>
-                    </div>
-                    <div class="card-body">
-                        <!-- Typing Indicator -->
-                        <p id="typing-indicator" class="typing-indicator"></p>
-
-                        <!-- Message Input -->
-                        <div class="input-group mb-3">
-                            <input type="text" placeholder="Enter your message" id="message" class="form-control">
-                            <button class="btn btn-dark" id="send-btn">Send</button>
-                            <button class="btn btn-dark" id="logout">Logout</button>
-                        </div>
-
-                        <!-- Messages Table -->
-                        <div class="table-responsive">
-                            <table id="message-container-table" class="table table-bordered table-dark"></table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- JS Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
-
-<!-- Script -->
+<!-- JavaScript for API Calls and Functionalities -->
 <script>
-    // WebSocket and STOMP client setup
-    let stompClient = null;
-    let username = null;
+    // API Endpoints
+    const registerApi = "http://localhost:8080/user/registerUser";
+    const patchApi = "http://localhost:8080/user/";
+    const getUserApi = "http://localhost:8080/user/getUserById?userId=";
+
+    // Register User
+    function registerUser() {
+        const user = getUserInput();
+        fetch(registerApi, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(user),
+        })
+        .then(response => response.json())
+        .then(data => displayOutput(data))
+        .catch(err => displayOutput({ error: "Error registering user", details: err }));
+    }
+
     let typingTimeout;
 
-    // Elements
-    const nameForm = document.getElementById("name-form");
-    const chatRoom = document.getElementById("chat-room");
-    const nameValue = document.getElementById("name-value");
-    const nameTitle = document.getElementById("name-title");
-    const messageInput = document.getElementById("message");
-    const messageTable = document.getElementById("message-container-table");
-    const typingIndicator = document.getElementById("typing-indicator");
+    document.getElementById("message").addEventListener("input", ()=> {
+    clearTimeout(typingTimeout);
+    stompClient.send("app/typing", {}, userName);
+    typingTimeout= setTimeout(() =>stompClient.send("app/typing", {}, ""), 1000);
+    });
 
-    // Connect to WebSocket
-    function connect() {
-        const socket = new SockJS("/chat");
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, () => {
-            console.log("Connected to WebSocket");
+    // Display Typing Indicator
+    stompClient.subscribe("topic/typing", function(message) {
+    document.getElementById("typing-indicator").textContent = message.body;
+    setTimeout(() => (document.getElementById("typing-indicator").textContent = ""), 1000);
+    });
 
-            // Subscribe to topic for messages
-            stompClient.subscribe("/topic/return-to", (message) => {
-                displayMessage(JSON.parse(message.body));
-            });
 
-            // Subscribe to topic for typing indicator
-            stompClient.subscribe("/topic/typing", (message) => {
-                typingIndicator.textContent = message.body;
-                setTimeout(() => (typingIndicator.textContent = ""), 1000);
-            });
-        });
+
+    // Update User
+    function updateUser() {
+        const userId = prompt("Enter the User ID to update:");
+        if (!userId) return alert("User ID is required!");
+        const user = getUserInput();
+        fetch(`${patchApi}${userId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(user),
+        })
+        .then(response => response.json())
+        .then(data => displayOutput(data))
+        .catch(err => displayOutput({ error: "Error updating user", details: err }));
     }
 
-    // Send message
-    document.getElementById("send-btn").addEventListener("click", () => {
-        const messageContent = messageInput.value;
-        if (messageContent && stompClient) {
-            const message = { content: messageContent, sender: username };
-            stompClient.send("/app/message", {}, JSON.stringify(message));
-            messageInput.value = "";
-        }
-    });
-
-    // Typing indicator
-    messageInput.addEventListener("input", () => {
-        if (stompClient && username) {
-            clearTimeout(typingTimeout);
-            stompClient.send("/app/typing", {}, username + " is typing...");
-            typingTimeout = setTimeout(() => stompClient.send("/app/typing", {}, ""), 1000);
-        }
-    });
-
-    // Display message
-    function displayMessage(message) {
-        const row = messageTable.insertRow();
-        const cell = row.insertCell(0);
-        cell.textContent = `${message.sender}: ${message.content}`;
+    // Get User
+    function getUser() {
+        const userId = prompt("Enter the User ID to fetch:");
+        if (!userId) return alert("User ID is required!");
+        fetch(`${getUserApi}${userId}`)
+        .then(response => response.json())
+        .then(data => displayOutput(data))
+        .catch(err => displayOutput({ error: "Error fetching user", details: err }));
     }
 
-    // Login
-    document.getElementById("login").addEventListener("click", () => {
-        username = nameValue.value.trim();
-        if (username) {
-            nameTitle.textContent = `Welcome, ${username}`;
-            nameForm.classList.add("d-none");
-            chatRoom.classList.remove("d-none");
-            connect();
-        }
-    });
+    // Check User for Chat
+    function checkUserForChat() {
+        const userId = prompt("Enter your User ID to join the chat:");
+        if (!userId) return alert("User ID is required!");
+        fetch(`${getUserApi}${userId}`)
+        .then(response => {
+            if (!response.ok) throw new Error("User not found");
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.name) {
+               window.location.href= "/chat";
+            } else {
+                alert("User not found or invalid data!");
+            }
+        })
+        .catch(err => displayOutput({ error: "Cannot join chat", details: err.message }));
+    }
 
-    // Logout
-    document.getElementById("logout").addEventListener("click", () => {
-        if (stompClient) stompClient.disconnect();
-        nameForm.classList.remove("d-none");
-        chatRoom.classList.add("d-none");
-        username = null;
-        messageTable.innerHTML = "";
-    });
+    // Enter Chat
+    function enterChat(userName) {
+        document.getElementById("user-management").style.display = "none";
+        document.getElementById("chat-room").style.display = "block";
+        document.getElementById("name-title").textContent = `Hello, ${userName}`;
+    }
+
+    // Logout from Chat
+    function logoutChat() {
+        document.getElementById("chat-room").style.display = "none";
+        document.getElementById("user-management").style.display = "block";
+        document.getElementById("output").textContent = "";
+    }
+
+    // Get User Input
+    function getUserInput() {
+        return {
+            name: document.getElementById("name").value,
+            address: document.getElementById("address").value,
+            mobileNumber: document.getElementById("mobileNumber").value,
+            email: document.getElementById("email").value,
+        };
+    }
+
+    // Display Output
+    function displayOutput(data) {
+        document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+    }
 </script>
 </body>
 </html>
-
