@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Update Profile</title>
+    <title>Register</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
 
         .container {
             margin-top: 50px;
-            max-width: 600px;
+            max-width: 500px;
         }
 
         .card {
@@ -44,102 +44,65 @@
     <div class="container">
         <div class="card">
             <div class="card-header bg-dark text-white">
-                <h4>Update Your Profile</h4>
+                <h4>Register</h4>
             </div>
             <div class="card-body">
-                <!-- User ID Input -->
-                <div class="form-group">
-                    <label for="userId">User ID</label>
-                    <input type="text" id="userId" class="form-control" placeholder="Enter your User ID">
-                    <button type="button" class="btn btn-primary mt-2" onclick="fetchUserDetails()">Fetch Details</button>
-                </div>
-
-                <!-- Profile Form -->
-                <form id="updateProfileForm" style="display: none;">
+                <!-- Registration Form -->
+                <form id="registerForm">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" class="form-control" placeholder="Your Name">
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Address</label>
-                        <input type="text" id="address" class="form-control" placeholder="Your Address">
-                    </div>
-                    <div class="form-group">
-                        <label for="mobileNumber">Mobile Number</label>
-                        <input type="text" id="mobileNumber" class="form-control" placeholder="Your Mobile Number">
+                        <input type="text" id="name" class="form-control" placeholder="Enter your name" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" placeholder="Your Email">
+                        <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
                     </div>
-                    <button type="button" class="btn btn-custom btn-block" onclick="updateProfile()">Update Profile</button>
+                    <div class="form-group">
+                        <label for="mobileNumber">Mobile Number</label>
+                        <input type="text" id="mobileNumber" class="form-control" placeholder="Enter your mobile number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" class="form-control" placeholder="Enter your address" required>
+                    </div>
+                    <button type="button" class="btn btn-custom btn-block" onclick="registerUser()">Register</button>
                 </form>
-                <div id="output" class="mt-3"></div>
+                <div id="output" class="mt-3 text-center"></div>
             </div>
         </div>
     </div>
 
     <script>
-        const getUserApi = "http://localhost:8080/user/getUserById?userId=";
-        const patchApi = "http://localhost:8080/user/";
+        const registerApi = "http://localhost:8080/user/registerUser"; // Update to match your API endpoint
+        const profilePageUrl = "profile-page.html"; // Redirect URL for the profile page
 
-        // Fetch user details and auto-populate form fields
-        function fetchUserDetails() {
-            const userId = document.getElementById("userId").value.trim();
-            if (!userId) {
-                alert("Please enter a valid User ID.");
-                return;
-            }
-
-            fetch(`${getUserApi}${userId}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("User not found.");
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById("updateProfileForm").style.display = "block";
-                    document.getElementById("name").value = data.name || "";
-                    document.getElementById("address").value = data.address || "";
-                    document.getElementById("mobileNumber").value = data.mobileNumber || "";
-                    document.getElementById("email").value = data.email || "";
-                    document.getElementById("output").textContent = "";
-                })
-                .catch(error => {
-                    document.getElementById("output").textContent = `Error: ${error.message}`;
-                    document.getElementById("updateProfileForm").style.display = "none";
-                });
-        }
-
-        // Update profile details
-        function updateProfile() {
-            const userId = document.getElementById("userId").value.trim();
-            if (!userId) {
-                alert("User ID is required to update the profile.");
-                return;
-            }
-
-            const userDetails = {
-                name: document.getElementById("name").value,
-                address: document.getElementById("address").value,
-                mobileNumber: document.getElementById("mobileNumber").value,
-                email: document.getElementById("email").value,
+        function registerUser() {
+            const user = {
+                name: document.getElementById("name").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                mobileNumber: document.getElementById("mobileNumber").value.trim(),
+                address: document.getElementById("address").value.trim(),
             };
 
-            fetch(`${patchApi}${userId}`, {
-                method: "PATCH",
+            fetch(registerApi, {
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(userDetails),
+                body: JSON.stringify(user),
             })
-                .then(response => {
-                    if (!response.ok) throw new Error("Failed to update profile.");
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById("output").textContent = "Profile updated successfully!";
-                })
-                .catch(error => {
-                    document.getElementById("output").textContent = `Error: ${error.message}`;
-                });
+            .then(response => {
+                if (!response.ok) throw new Error("Registration failed");
+                return response.json();
+            })
+            .then(data => {
+                // Assuming the backend returns success or user details
+                document.getElementById("output").textContent = "Registration successful!";
+                setTimeout(() => {
+                    window.location.href = profilePageUrl;
+                }, 1000);
+            })
+            .catch(err => {
+                document.getElementById("output").textContent = `Error: ${err.message}`;
+            });
         }
     </script>
 </body>
