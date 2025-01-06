@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Profile Page</title>
-
+    <title>Update Profile</title>
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -15,139 +15,136 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Header Section */
-        .profile-header {
-            background: #343a40;
+        .container {
+            margin-top: 50px;
+            max-width: 600px;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-custom {
+            background-color: #007bff;
             color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            border-radius: 10px 10px 0 0;
-        }
-
-        .profile-header img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin-right: 20px;
-        }
-
-        .profile-header h2 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
-
-        .profile-header p {
-            margin: 5px 0 0;
-            font-size: 1rem;
-            color: #d1d1d1;
-        }
-
-        /* Navigation Bar */
-        .nav-bar {
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 0 0 10px 10px;
-        }
-
-        .nav-bar a {
-            color: white;
-            margin: 0 10px;
-            text-decoration: none;
             font-weight: bold;
         }
 
-        .nav-bar a:hover {
-            text-decoration: underline;
+        .btn-custom:hover {
+            background-color: #0056b3;
         }
 
-        /* Main Content */
-        .profile-content {
-            margin-top: 20px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .fun-section {
-            margin-top: 20px;
-            padding: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .fun-section div {
-            flex: 1;
-            text-align: center;
-            margin: 0 10px;
-        }
-
-        .fun-section div img {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 10px;
-        }
-
-        .fun-section div p {
+        .form-group label {
             font-weight: bold;
-            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
-<div class="container mt-5">
-    <!-- Header Section -->
-    <div class="profile-header">
-        <img src="https://via.placeholder.com/80" alt="User Profile">
-        <div>
-            <h2>Welcome </h2>
-            <p>Manage your profile or connect with others!</p>
+    <div class="container">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4 id="headerTitle">Update Your Profile</h4>
+            </div>
+            <div class="card-body">
+                <!-- User ID Input -->
+                <div class="form-group">
+                    <label for="userId">User ID</label>
+                    <input type="text" id="userId" class="form-control" placeholder="Enter your User ID">
+                    <button type="button" class="btn btn-primary mt-2" onclick="fetchUserDetails()">Fetch Details</button>
+                </div>
+
+                <!-- Profile Form -->
+                <form id="updateProfileForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" class="form-control" placeholder="Your Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" class="form-control" placeholder="Your Address">
+                    </div>
+                    <div class="form-group">
+                        <label for="mobileNumber">Mobile Number</label>
+                        <input type="text" id="mobileNumber" class="form-control" placeholder="Your Mobile Number">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" placeholder="Your Email">
+                    </div>
+                    <button type="button" class="btn btn-custom btn-block" onclick="updateProfile()">Update Profile</button>
+                </form>
+                <div id="output" class="mt-3"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Navigation Bar -->
-    <div class="nav-bar">
-        <div>
-            <a href="update.html">Update Profile</a>
-            <a href="index.html">Chat Room</a>
-        </div>
-        <a href="index.html" onclick="logout()">Logout</a>
-    </div>
+    <script>
+        const getUserApi = "http://localhost:8080/user/getUserById?userId=";
+        const patchApi = "http://localhost:8080/user/";
 
-    <!-- Profile Content -->
-    <div class="profile-content">
-        <h4>Profile Overview</h4>
-        <p>This is your profile. Find your friends and chat with them.</p>
-    </div>
+        // Fetch user details and auto-populate form fields
+        function fetchUserDetails() {
+            const userId = document.getElementById("userId").value.trim();
+            if (!userId) {
+                alert("Please enter a valid User ID.");
+                return;
+            }
 
-    <!-- Fun Section -->
-    <div class="fun-section">
-        <div>
-            <img src="https://via.placeholder.com/100" alt="Feature Icon">
-            <p>Achievements</p>
-        </div>
-        <div>
-            <img src="https://via.placeholder.com/100" alt="Feature Icon">
-            <p>Friends</p>
-        </div>
-        <div>
-            <img src="https://via.placeholder.com/100" alt="Feature Icon">
-            <p>Activity</p>
-        </div>
-    </div>
-</div>
+            fetch(`${getUserApi}${userId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("User not found.");
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the header with the user's name
+                    document.getElementById("headerTitle").textContent = `Update Your Profile, ${data.name || "User"}`;
+                    
+                    // Display the form and populate fields
+                    document.getElementById("updateProfileForm").style.display = "block";
+                    document.getElementById("name").value = data.name || "";
+                    document.getElementById("address").value = data.address || "";
+                    document.getElementById("mobileNumber").value = data.mobileNumber || "";
+                    document.getElementById("email").value = data.email || "";
+                    document.getElementById("output").textContent = "";
+                })
+                .catch(error => {
+                    document.getElementById("output").textContent = `Error: ${error.message}`;
+                    document.getElementById("updateProfileForm").style.display = "none";
+                });
+        }
 
-<script>
-    function logout() {
-        alert("You have been logged out!");
-    }
-</script>
+        // Update profile details
+        function updateProfile() {
+            const userId = document.getElementById("userId").value.trim();
+            if (!userId) {
+                alert("User ID is required to update the profile.");
+                return;
+            }
+
+            const userDetails = {
+                name: document.getElementById("name").value,
+                address: document.getElementById("address").value,
+                mobileNumber: document.getElementById("mobileNumber").value,
+                email: document.getElementById("email").value,
+            };
+
+            fetch(`${patchApi}${userId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userDetails),
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to update profile.");
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("output").textContent = "Profile updated successfully!";
+                })
+                .catch(error => {
+                    document.getElementById("output").textContent = `Error: ${error.message}`;
+                });
+        }
+    </script>
 </body>
 </html>
