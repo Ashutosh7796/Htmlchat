@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Profile Page</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -15,84 +15,139 @@
             font-family: Arial, sans-serif;
         }
 
-        .container {
-            margin-top: 50px;
-            max-width: 600px;
-        }
-
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-custom {
-            background-color: #007bff;
+        /* Header Section */
+        .profile-header {
+            background: #343a40;
             color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .profile-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+
+        .profile-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .profile-header p {
+            margin: 5px 0 0;
+            font-size: 1rem;
+            color: #d1d1d1;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .nav-bar a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
             font-weight: bold;
         }
 
-        .btn-custom:hover {
-            background-color: #0056b3;
+        .nav-bar a:hover {
+            text-decoration: underline;
         }
 
-        .welcome {
-            font-size: 1.5rem;
+        /* Main Content */
+        .profile-content {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .fun-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .fun-section div {
+            flex: 1;
+            text-align: center;
+            margin: 0 10px;
+        }
+
+        .fun-section div img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+
+        .fun-section div p {
             font-weight: bold;
+            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="welcome">Welcome, <span id="user-name">Loading...</span></span>
-                    <button class="btn btn-sm btn-danger" onclick="logout()">Logout</button>
-                </div>
-            </div>
-            <div class="card-body">
-                <p class="text-center">Choose an option:</p>
-                <div class="d-flex justify-content-around">
-                    <a href="update-profile.html" class="btn btn-custom">Update Profile</a>
-                    <a href="chat-room.html" class="btn btn-custom">Chat Room</a>
-                </div>
-            </div>
+<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="profile-header">
+        <img src="https://via.placeholder.com/80" alt="User Profile">
+        <div>
+            <h2>Welcome </h2>
+            <p>Manage your profile or connect with others!</p>
         </div>
     </div>
 
-    <script>
-        const getUserApi = "http://localhost:8080/user/getUserById?userId="; // API endpoint
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div>
+            <a href="update.html">Update Profile</a>
+            <a href="index.html">Chat Room</a>
+        </div>
+        <a href="index.html" onclick="logout()">Logout</a>
+    </div>
 
-        // Fetch user details and display the name
-        function fetchUserName() {
-            const userId = localStorage.getItem("userId");
-            if (!userId) {
-                document.getElementById("user-name").textContent = "Guest";
-                return;
-            }
+    <!-- Profile Content -->
+    <div class="profile-content">
+        <h4>Profile Overview</h4>
+        <p>This is your profile. Find your friends and chat with them.</p>
+    </div>
 
-            fetch(`${getUserApi}${userId}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("User not found.");
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById("user-name").textContent = data.name || "User";
-                })
-                .catch(error => {
-                    document.getElementById("user-name").textContent = "Guest";
-                    console.error("Error fetching user details:", error.message);
-                });
-        }
+    <!-- Fun Section -->
+    <div class="fun-section">
+        <div>
+            <img src="https://via.placeholder.com/100" alt="Feature Icon">
+            <p>Achievements</p>
+        </div>
+        <div>
+            <img src="https://via.placeholder.com/100" alt="Feature Icon">
+            <p>Friends</p>
+        </div>
+        <div>
+            <img src="https://via.placeholder.com/100" alt="Feature Icon">
+            <p>Activity</p>
+        </div>
+    </div>
+</div>
 
-        // Logout functionality
-        function logout() {
-            localStorage.removeItem("userId"); // Clear user data
-            window.location.href = "register.html"; // Redirect to the registration page
-        }
-
-        // Fetch the user's name on page load
-        fetchUserName();
-    </script>
+<script>
+    function logout() {
+        alert("You have been logged out!");
+    }
+</script>
 </body>
 </html>
